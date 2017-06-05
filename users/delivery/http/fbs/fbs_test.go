@@ -15,6 +15,26 @@ import (
 
 const BenchCall = 100000
 
+func BenchmarkCreateUserJSON(b *testing.B) {
+	b.N = BenchCall
+	for i := 0; i < b.N; i++ {
+		var user = &users.UserObj{
+			ID:   64,
+			Name: "Iman",
+		}
+
+		byt, _ := json.Marshal(user)
+		// jsonUser := string(byt)
+		jsonUser := byt
+		var userD users.UserObj
+		// err := json.Unmarshal([]byte(jsonUser), &userD)
+		err := json.Unmarshal(jsonUser, &userD)
+		assert.NoError(b, err)
+		assert.Equal(b, "Iman", userD.Name)
+	}
+
+}
+
 func BenchmarkCreateUserFBS(b *testing.B) {
 	b.N = BenchCall
 
@@ -32,6 +52,7 @@ func BenchmarkCreateUserFBS(b *testing.B) {
 	}
 
 }
+
 func BenchmarkCreateUserListFBS(b *testing.B) {
 	b.N = BenchCall
 	for j := 0; j < b.N; j++ {
@@ -56,25 +77,6 @@ func BenchmarkCreateUserListFBS(b *testing.B) {
 
 }
 
-func BenchmarkCreateUserJSON(b *testing.B) {
-	b.N = BenchCall
-	for i := 0; i < b.N; i++ {
-		var user = &users.UserObj{
-			ID:   64,
-			Name: "Iman",
-		}
-
-		byt, _ := json.Marshal(user)
-		// jsonUser := string(byt)
-		jsonUser := byt
-		var userD users.UserObj
-		// err := json.Unmarshal([]byte(jsonUser), &userD)
-		err := json.Unmarshal(jsonUser, &userD)
-		assert.NoError(b, err)
-		assert.Equal(b, "Iman", userD.Name)
-	}
-
-}
 func BenchmarkCreateUserListJSON(b *testing.B) {
 	b.N = BenchCall
 	for j := 0; j < b.N; j++ {
