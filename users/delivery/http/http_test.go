@@ -17,10 +17,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const benchCall = 100000
+
 func BenchmarkJSONSimple(b *testing.B) {
 
 	e := echo.New()
-	b.N = 100000
+	b.N = benchCall
 
 	for i := 0; i < b.N; i++ {
 
@@ -52,7 +54,7 @@ func BenchmarkJSONSimple(b *testing.B) {
 func BenchmarkFbsSimple(b *testing.B) {
 
 	e := echo.New()
-	b.N = 100000
+	b.N = benchCall
 
 	for i := 0; i < b.N; i++ {
 
@@ -81,7 +83,7 @@ func BenchmarkFbsSimple(b *testing.B) {
 func BenchmarkJSONSimpleList(b *testing.B) {
 
 	e := echo.New()
-	b.N = 100000
+	b.N = benchCall
 
 	for i := 0; i < b.N; i++ {
 
@@ -111,7 +113,7 @@ func BenchmarkJSONSimpleList(b *testing.B) {
 func BenchmarkFbsSimpleList(b *testing.B) {
 
 	e := echo.New()
-	b.N = 100000
+	b.N = benchCall
 
 	for i := 0; i < b.N; i++ {
 
