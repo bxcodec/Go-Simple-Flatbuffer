@@ -1,0 +1,13 @@
+namespace users;
+
+
+table User {
+  name : string ;
+  id : long;
+}
+
+table UserContainer {
+  ListOfUsers:[User];
+}
+
+root_type User;

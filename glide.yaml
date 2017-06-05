@@ -1,0 +1,17 @@
+package: github.com/bxcodec/Go-Simple-Flatbuffer
+import:
+- package: github.com/google/flatbuffers
+  version: v1.6.0
+  subpackages:
+  - go
+- package: github.com/labstack/echo
+  version: ~3.1
+- package: github.com/labstack/gommon
+  version: v0.2.1
+  subpackages:
+  - log
+- package: github.com/stretchr/testify
+  version: v1.1.4
+  subpackages:
+  - assert
+  - mock
