@@ -30,7 +30,7 @@ func (u *HttpHandlerFbs) Get(c echo.Context) error {
 func (u *HttpHandlerFbs) GetListUser(c echo.Context) error {
 
 	b := flatbuffers.NewBuilder(0)
-	user := &users.UserObj{int64(42), "Arthur Dent"}
+	user := &users.UserObj{int64(42), "Iman"}
 	list := make([]*users.UserObj, 0)
 	for i := 0; i < httpdlv.DATA_SIZE; i++ {
 		list = append(list, user)

@@ -134,7 +134,7 @@ func BenchmarkFbsSimpleList(b *testing.B) {
 		listUser := handler.ReadUserList(dta)
 
 		assert.Len(b, listUser, httpdlv.DATA_SIZE)
-		assert.Equal(b, "Arthur Dent", listUser[0].Name)
+		assert.Equal(b, "Iman", listUser[0].Name)
 
 	}
 
