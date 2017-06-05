@@ -16,7 +16,7 @@ type HttpHandlerFbs struct {
 func (u *HttpHandlerFbs) Get(c echo.Context) error {
 
 	b := flatbuffers.NewBuilder(0)
-	buf := u.MakeUser(b, &users.UserObj{64, "Iman"})
+	buf := u.MakeUser(b, &users.UserObj{int64(64), "Iman"})
 
 	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEOctetStream)
 	c.Response().WriteHeader(http.StatusOK)

@@ -1,7 +1,7 @@
 package http_test
 
 import (
-	"fmt"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -9,9 +9,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bxcodec/Go-Simple-Flatbuffer/users"
+	httpdlv "github.com/bxcodec/Go-Simple-Flatbuffer/users/delivery/http"
 	"github.com/bxcodec/Go-Simple-Flatbuffer/users/delivery/http/fbs"
 	"github.com/bxcodec/Go-Simple-Flatbuffer/users/delivery/http/jsondlv"
 	"github.com/labstack/echo"
+	"github.com/stretchr/testify/assert"
 )
 
 func BenchmarkJSONSimple(b *testing.B) {
@@ -35,14 +38,12 @@ func BenchmarkJSONSimple(b *testing.B) {
 		}
 		body := rec.Body
 		dta, err := ioutil.ReadAll(body)
-		if err != nil {
-			os.Exit(0)
-		}
+		assert.NoError(b, err)
 
-		if i == 1 {
-			fmt.Println(string(dta))
-			fmt.Print("")
-		}
+		var user users.UserObj
+		err = json.Unmarshal(dta, &user)
+		assert.NoError(b, err)
+		assert.Equal(b, "Iman", user.Name)
 
 	}
 
@@ -64,24 +65,14 @@ func BenchmarkFbsSimple(b *testing.B) {
 		c := e.NewContext(req, rec)
 		handler.Get(c)
 
-		if rec.Code != http.StatusOK {
-			os.Exit(0)
-		}
+		assert.Equal(b, http.StatusOK, rec.Code)
 
 		body := rec.Body
 		dta, err := ioutil.ReadAll(body)
+		assert.NoError(b, err)
 
-		if err != nil {
-			fmt.Println("Something happen")
-
-			os.Exit(0)
-		}
-
-		if i == 1 {
-			data := handler.ReadUser(dta)
-			fmt.Println(data)
-			fmt.Print("")
-		}
+		data := handler.ReadUser(dta)
+		assert.Equal(b, int64(64), data.ID)
 
 	}
 
@@ -101,21 +92,17 @@ func BenchmarkJSONSimpleList(b *testing.B) {
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		handler.Get(c)
-
-		if rec.Code != http.StatusOK {
-			os.Exit(0)
-		}
+		handler.GetListUser(c)
+		assert.Equal(b, http.StatusOK, rec.Code)
 		body := rec.Body
-		_, err := ioutil.ReadAll(body)
-		if err != nil {
-			os.Exit(0)
-		}
+		dta, err := ioutil.ReadAll(body)
+		assert.NoError(b, err)
+		var listUser []*users.UserObj
+		err = json.Unmarshal(dta, &listUser)
+		assert.NoError(b, err)
 
-		if i == 1 {
-			// fmt.Println(string(dta))
-			fmt.Print("")
-		}
+		assert.Len(b, listUser, httpdlv.DATA_SIZE)
+		// assert.Equal(b, "Iman", listUser[0].Name)
 
 	}
 
@@ -135,26 +122,17 @@ func BenchmarkFbsSimpleList(b *testing.B) {
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		handler.Get(c)
+		handler.GetListUser(c)
 
-		if rec.Code != http.StatusOK {
-			os.Exit(0)
-		}
-
+		assert.Equal(b, http.StatusOK, rec.Code)
 		body := rec.Body
 		dta, err := ioutil.ReadAll(body)
+		assert.NoError(b, err)
 
-		if err != nil {
-			fmt.Println("Something happen")
+		listUser := handler.ReadUserList(dta)
 
-			os.Exit(0)
-		}
-
-		if i == 1 {
-			handler.ReadUser(dta)
-			// fmt.Printf("Name : %s , id : %d ", name, id)
-			fmt.Print("")
-		}
+		assert.Len(b, listUser, httpdlv.DATA_SIZE)
+		assert.Equal(b, "Arthur Dent", listUser[0].Name)
 
 	}
 
