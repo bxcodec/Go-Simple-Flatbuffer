@@ -1,0 +1,50 @@
+namespace articles;
+
+table Image {
+  url: string ;
+  mime : string ;
+  width : int ;
+  height : int ;
+}
+
+
+
+table Content {
+  type :string;
+
+}
+
+table Paragraph{
+  base: Content;
+  text: string;
+}
+
+table ImageContent {
+  base: Content;
+  url:  string ;
+  mime: string ;
+  width:int ;
+  height: int ;
+}
+ 
+union ContentUnion {ImageContent,Paragraph }
+
+table ContentContainer {
+  contents: ContentUnion;
+}
+
+table Article {
+  id : long ;
+  title: string;
+  excerpt: string ;
+  html: string;
+  content : [ContentUnion];
+  url : string;
+  images : [Image];
+  publish_time: string ;
+  categories : [long];
+  source_id : long ;
+}
+
+
+root_type Article;
