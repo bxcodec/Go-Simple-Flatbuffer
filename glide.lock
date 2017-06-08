@@ -1,5 +1,5 @@
-hash: 147e0e583ab3be83eef29c0b3ffe4aa0fe95f012b598464dd377b8e7be4fe37f
-updated: 2017-06-05T11:49:43.76145579+07:00
+hash: c71acb528374d1227c2923c63f55c8056d07d2ef78cefc5580db3b73b6d74271
+updated: 2017-06-08T11:48:11.079762484+07:00
 imports:
 - name: github.com/google/flatbuffers
   version: cebdad4d2381ca4d6325121c4189ce0b754ecfeb
@@ -34,4 +34,14 @@ imports:
   version: dbc2be9168a660ef302e04b6ff6406de6f967473
   subpackages:
   - unix
-testImports: []
+- name: gopkg.in/vmihailenco/msgpack.v2
+  version: f4f8982de4ef0de18be76456617cc3f5d8d8141e
+testImports:
+- name: github.com/davecgh/go-spew
+  version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
+  subpackages:
+  - spew
+- name: github.com/pmezard/go-difflib
+  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
+  subpackages:
+  - difflib

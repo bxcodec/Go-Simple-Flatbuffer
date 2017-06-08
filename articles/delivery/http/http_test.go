@@ -9,27 +9,53 @@ import (
 	"strings"
 	"testing"
 
+	msgpack "gopkg.in/vmihailenco/msgpack.v2"
+
+	// "github.com/bxcodec/Go-Simple-Flatbuffer/users"
+	// "github.com/bxcodec/Go-Simple-Flatbuffer/users/delivery/http/jsondlv"
+	fbsdlv "github.com/bxcodec/Go-Simple-Flatbuffer/articles/delivery/http/fbs"
+	jsondlv "github.com/bxcodec/Go-Simple-Flatbuffer/articles/delivery/http/json"
+	msgpackdlv "github.com/bxcodec/Go-Simple-Flatbuffer/articles/delivery/http/msgpack"
 	"github.com/bxcodec/Go-Simple-Flatbuffer/users"
-	httpdlv "github.com/bxcodec/Go-Simple-Flatbuffer/users/delivery/http"
-	"github.com/bxcodec/Go-Simple-Flatbuffer/users/delivery/http/fbs"
-	"github.com/bxcodec/Go-Simple-Flatbuffer/users/delivery/http/jsondlv"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 )
 
 const benchCall = 100000
 
-func BenchmarkJSONSimple(b *testing.B) {
-
+func TestRESTwithFBS(bench *testing.T) {
 	e := echo.New()
-	b.N = benchCall
 
-	for i := 0; i < b.N; i++ {
+	req, _ := http.NewRequest(echo.GET, `/articlefbs`, strings.NewReader(``))
 
-		req, _ := http.NewRequest(echo.GET, `/user`, strings.NewReader(``))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	handler := fbsdlv.HttpHandlerFbs{}
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	handler.Get(c)
+
+	if rec.Code != http.StatusOK {
+		os.Exit(0)
+	}
+	body := rec.Body
+	dta, err := ioutil.ReadAll(body)
+	assert.NoError(bench, err)
+
+	data := handler.ReadArticle(dta)
+
+	assert.Equal(bench, mockArticle.Categories, data.Categories)
+
+}
+func BenchmarkRESTwithFBS(bench *testing.B) {
+	bench.N = benchCall
+	for i := 0; i < bench.N; i++ {
+		e := echo.New()
+
+		req, _ := http.NewRequest(echo.GET, `/articlefbs`, strings.NewReader(``))
 
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		handler := jsondlv.UserHandler{}
+		handler := fbsdlv.HttpHandlerFbs{}
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
@@ -40,101 +66,115 @@ func BenchmarkJSONSimple(b *testing.B) {
 		}
 		body := rec.Body
 		dta, err := ioutil.ReadAll(body)
-		assert.NoError(b, err)
+		assert.NoError(bench, err)
 
-		var user users.UserObj
-		err = json.Unmarshal(dta, &user)
-		assert.NoError(b, err)
-		assert.Equal(b, "Iman", user.Name)
+		data := handler.ReadArticle(dta)
 
+		assert.Equal(bench, mockArticle.Categories, data.Categories)
 	}
-
 }
 
-func BenchmarkFbsSimple(b *testing.B) {
-
+func TestRESTwithMsgPack(bench *testing.T) {
 	e := echo.New()
-	b.N = benchCall
 
-	for i := 0; i < b.N; i++ {
+	req, _ := http.NewRequest(echo.GET, `/articlemsgpack`, strings.NewReader(``))
 
-		req, _ := http.NewRequest(echo.GET, `/userfbs`, strings.NewReader(``))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	handler := msgpackdlv.HttpHandlerMsgPack{}
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	handler.Get(c)
+
+	if rec.Code != http.StatusOK {
+		os.Exit(0)
+	}
+	body := rec.Body
+	dta, err := ioutil.ReadAll(body)
+	assert.NoError(bench, err)
+
+	var a ClientArticleObj
+	err = msgpack.Unmarshal(dta, &a)
+	assert.NoError(bench, err)
+	assert.Equal(bench, mockArticle.Categories, a.Categories)
+
+}
+func BenchmarkRESTwithMsgPack(bench *testing.B) {
+	bench.N = benchCall
+	e := echo.New()
+	for i := 0; i < bench.N; i++ {
+
+		req, _ := http.NewRequest(echo.GET, `/articlemsgpack`, strings.NewReader(``))
 
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		handler := fbs.HttpHandlerFbs{}
+		handler := msgpackdlv.HttpHandlerMsgPack{}
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 		handler.Get(c)
 
-		assert.Equal(b, http.StatusOK, rec.Code)
-
+		if rec.Code != http.StatusOK {
+			os.Exit(0)
+		}
 		body := rec.Body
 		dta, err := ioutil.ReadAll(body)
-		assert.NoError(b, err)
+		assert.NoError(bench, err)
 
-		data := handler.ReadUser(dta)
-		assert.Equal(b, int64(64), data.ID)
+		var a ClientArticleObj
+		err = msgpack.Unmarshal(dta, &a)
+		assert.NoError(bench, err)
+		assert.Equal(bench, mockArticle.Categories, a.Categories)
 
 	}
-
 }
 
-func BenchmarkJSONSimpleList(b *testing.B) {
-
+func TestRESTwithJSON(bench *testing.T) {
 	e := echo.New()
-	b.N = benchCall
 
-	for i := 0; i < b.N; i++ {
+	req, _ := http.NewRequest(echo.GET, `/article`, strings.NewReader(``))
 
-		req, _ := http.NewRequest(echo.GET, `/userlist`, strings.NewReader(``))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	handler := jsondlv.ArticleHandler{}
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	handler.Get(c)
+
+	if rec.Code != http.StatusOK {
+		os.Exit(0)
+	}
+	body := rec.Body
+	dta, err := ioutil.ReadAll(body)
+	assert.NoError(bench, err)
+	var user users.UserObj
+	err = json.Unmarshal(dta, &user)
+	assert.NoError(bench, err)
+
+}
+func BenchmarkRESTwithJSON(bench *testing.B) {
+	bench.N = benchCall
+	e := echo.New()
+	for i := 0; i < bench.N; i++ {
+
+		req, _ := http.NewRequest(echo.GET, `/article`, strings.NewReader(``))
 
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		handler := jsondlv.UserHandler{}
+		handler := jsondlv.ArticleHandler{}
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		handler.GetListUser(c)
-		assert.Equal(b, http.StatusOK, rec.Code)
+		handler.Get(c)
+
+		if rec.Code != http.StatusOK {
+			os.Exit(0)
+		}
 		body := rec.Body
 		dta, err := ioutil.ReadAll(body)
-		assert.NoError(b, err)
-		var listUser []*users.UserObj
-		err = json.Unmarshal(dta, &listUser)
-		assert.NoError(b, err)
+		assert.NoError(bench, err)
 
-		assert.Len(b, listUser, httpdlv.DATA_SIZE)
-		// assert.Equal(b, "Iman", listUser[0].Name)
-
-	}
-
-}
-
-func BenchmarkFbsSimpleList(b *testing.B) {
-
-	e := echo.New()
-	b.N = benchCall
-
-	for i := 0; i < b.N; i++ {
-
-		req, _ := http.NewRequest(echo.GET, `/userfbslist`, strings.NewReader(``))
-
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		handler := fbs.HttpHandlerFbs{}
-
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
-		handler.GetListUser(c)
-
-		assert.Equal(b, http.StatusOK, rec.Code)
-		body := rec.Body
-		dta, err := ioutil.ReadAll(body)
-		assert.NoError(b, err)
-
-		listUser := handler.ReadUserList(dta)
-
-		assert.Len(b, listUser, httpdlv.DATA_SIZE)
-		assert.Equal(b, "Iman", listUser[0].Name)
+		var user users.UserObj
+		err = json.Unmarshal(dta, &user)
+		assert.NoError(bench, err)
 
 	}
 

@@ -29,6 +29,7 @@ func (u *ArticleFbsHandler) imageList(b *flatbuffers.Builder, imglist []*article
 
 func (u *ArticleFbsHandler) contentList(b *flatbuffers.Builder, contents []articles.ContentObj) []flatbuffers.UOffsetT {
 
+	// articles.ArticleStartContentVector(b, len(contents))
 	ptrs := make([]flatbuffers.UOffsetT, len(contents))
 
 	for i := len(contents) - 1; i >= 0; i-- {
@@ -45,6 +46,7 @@ func (u *ArticleFbsHandler) contentList(b *flatbuffers.Builder, contents []artic
 
 			url := b.CreateString(imgContentObj.URL)
 			mime := b.CreateString(imgContentObj.Mime)
+			// tipe := b.CreateString(imgContentObj.Type())
 
 			articles.ImageContentStart(b)
 
@@ -61,9 +63,12 @@ func (u *ArticleFbsHandler) contentList(b *flatbuffers.Builder, contents []artic
 			ptrs[i] = imageContent
 			break
 		case "articles.ParagraphObj", "*articles.ParagraphObj":
+			// articles.ContentAddType(b, articles.ContentUnionParagraph)
 			prgraphContentObj := contents[i].(*articles.ParagraphObj)
 
 			text := b.CreateString(prgraphContentObj.Text)
+
+			// tipe := b.CreateString(prgraphContentObj.Type())
 
 			articles.ParagraphStart(b)
 			articles.ParagraphAddText(b, text)
@@ -106,10 +111,11 @@ func (u *ArticleFbsHandler) MakeArticle(b *flatbuffers.Builder, articleObj *arti
 	}
 
 	listImage := b.EndVector(len(imglist))
+	// b.Finish(listImage)
 	articles.ArticleStartCategoriesVector(b, len(articleObj.Categories))
 	for i := len(articleObj.Categories) - 1; i >= 0; i-- {
 		b.PrependInt64(int64(articleObj.Categories[i]))
-
+		// b.PrependByte(byte())
 	}
 	catList := b.EndVector(len(articleObj.Categories))
 
@@ -232,6 +238,7 @@ func (u *ArticleFbsHandler) ReadArticle(buf []byte) *articles.ArticleObj {
 	articleRes.Images = images
 
 	pubTime := string(article.PublishTime())
+
 	var err error
 	articleRes.PubishTime, err = time.Parse(time.RFC3339, pubTime)
 	if err != nil {
