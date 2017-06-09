@@ -26,7 +26,7 @@ go test -bench=.
 
 De/Serializing Benchmark
 ```bash
-# HTTP Request Benchmark
+# De/Serializing Benchmark
 
 cd users/delivery/http/fbs
 
